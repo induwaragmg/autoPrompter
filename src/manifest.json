@@ -1,0 +1,60 @@
+{
+  "manifest_version": 3,
+  "name": "Auto Prompter",
+  "version": "1.0.0",
+  "description": "Automatically input custom prompts to ChatGPT-like chatbots with user permission and limits",
+  
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting",
+    "alarms"
+  ],
+  
+  "host_permissions": [
+    "https://chat.openai.com/*",
+    "https://bard.google.com/*",
+    "https://claude.ai/*",
+    "https://chat.anthropic.com/*",
+    "https://poe.com/*",
+    "https://you.com/*",
+    "https://chat.bing.com/*",
+    "*://localhost/*"
+  ],
+
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+
+  "content_scripts": [
+    {
+      "matches": [
+        "https://chat.openai.com/*",
+        "https://bard.google.com/*",
+        "https://claude.ai/*",
+        "https://chat.anthropic.com/*",
+        "https://poe.com/*",
+        "https://you.com/*",
+        "https://chat.bing.com/*"
+      ],
+      "js": ["contentScript.js"],
+      "run_at": "document_end",
+      "all_frames": false
+    }
+  ],
+
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Auto Prompter Settings"
+  },
+
+  "options_page": "options.html",
+
+  "web_accessible_resources": [
+    {
+      "resources": ["assets/*"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
