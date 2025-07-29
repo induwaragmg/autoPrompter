@@ -13,6 +13,7 @@
   
   "host_permissions": [
     "https://chat.openai.com/*",
+    "https://chatgpt.com/*",
     "https://bard.google.com/*",
     "https://claude.ai/*",
     "https://chat.anthropic.com/*",
@@ -31,6 +32,7 @@
     {
       "matches": [
         "https://chat.openai.com/*",
+        "https://chatgpt.com/*",
         "https://bard.google.com/*",
         "https://claude.ai/*",
         "https://chat.anthropic.com/*",

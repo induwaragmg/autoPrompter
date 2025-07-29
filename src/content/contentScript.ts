@@ -275,7 +275,14 @@ class AutoPrompterContent {
 
   private setInputValue(element: HTMLElement, value: string): void {
     if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) {
-      element.value = value;
+      // Use native setter for React compatibility
+      const proto = Object.getPrototypeOf(element);
+      const nativeInputValueSetter = Object.getOwnPropertyDescriptor(proto, 'value')?.set;
+      if (nativeInputValueSetter) {
+        nativeInputValueSetter.call(element, value);
+      } else {
+        element.value = value;
+      }
     } else if (element.contentEditable === 'true') {
       element.textContent = value;
       element.innerText = value;
@@ -283,19 +290,16 @@ class AutoPrompterContent {
   }
 
   private triggerInputEvents(element: HTMLElement): void {
-    const events = ['focus', 'input', 'change', 'keyup'];
-    events.forEach(eventType => {
-      const event = new Event(eventType, { bubbles: true });
-      element.dispatchEvent(event);
-    });
-  }
-
-  private submitWithEnter(element: HTMLElement): void {
-    // Focus the element first
+    // Focus first
     element.focus();
-    
-    // Send Enter key
-    const enterEvent = new KeyboardEvent('keydown', {
+    // Input event (for React)
+    const inputEvent = new Event('input', { bubbles: true });
+    element.dispatchEvent(inputEvent);
+    // Change event
+    const changeEvent = new Event('change', { bubbles: true });
+    element.dispatchEvent(changeEvent);
+    // Keydown/keyup for Enter (simulate typing)
+    const keydownEvent = new KeyboardEvent('keydown', {
       key: 'Enter',
       code: 'Enter',
       keyCode: 13,
@@ -303,9 +307,44 @@ class AutoPrompterContent {
       bubbles: true,
       cancelable: true
     });
-    
-    element.dispatchEvent(enterEvent);
-    console.log('Auto Prompter: Sent Enter key');
+    element.dispatchEvent(keydownEvent);
+    const keyupEvent = new KeyboardEvent('keyup', {
+      key: 'Enter',
+      code: 'Enter',
+      keyCode: 13,
+      which: 13,
+      bubbles: true,
+      cancelable: true
+    });
+    element.dispatchEvent(keyupEvent);
+  }
+
+  private submitWithEnter(element: HTMLElement): void {
+    // Focus the element first
+    element.focus();
+    // For ChatGPT, trigger keydown, keyup, and input events
+    const keydownEvent = new KeyboardEvent('keydown', {
+      key: 'Enter',
+      code: 'Enter',
+      keyCode: 13,
+      which: 13,
+      bubbles: true,
+      cancelable: true
+    });
+    element.dispatchEvent(keydownEvent);
+    const keyupEvent = new KeyboardEvent('keyup', {
+      key: 'Enter',
+      code: 'Enter',
+      keyCode: 13,
+      which: 13,
+      bubbles: true,
+      cancelable: true
+    });
+    element.dispatchEvent(keyupEvent);
+    // Also dispatch input event for React
+    const inputEvent = new Event('input', { bubbles: true });
+    element.dispatchEvent(inputEvent);
+    console.log('Auto Prompter: Sent Enter key and input events');
   }
 
   private showNotification(message: string): void {
